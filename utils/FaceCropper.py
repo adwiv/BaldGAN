@@ -1,20 +1,11 @@
 import os
 
-import io
 import numpy as np
-from PIL import Image
-import cv2
-import IPython.display
 
 # from natsort import natsorted
-import matplotlib.pyplot as plt
 import face_alignment
-from skimage.transform import estimate_transform, warp, resize, rescale
 import dlib
-from .inverter import StyleGANInverter
 from utils import segment
-from models.invert_model.helper import build_generator
-import scipy.ndimage
 
 
 class FaceCropper(object):
