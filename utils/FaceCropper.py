@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image
 import cv2
 import IPython.display
+
 # from natsort import natsorted
 import matplotlib.pyplot as plt
 import face_alignment
@@ -12,17 +13,17 @@ from skimage.transform import estimate_transform, warp, resize, rescale
 import dlib
 from .inverter import StyleGANInverter
 from utils import segment
-from  hairGAN.models.invert_model.helper import build_generator
+from models.invert_model.helper import build_generator
 import scipy.ndimage
 
 
 class FaceCropper(object):
-    def __init__(self, image_size , model_dir = "pretrained_models"):
+    def __init__(self, image_size, model_dir="pretrained_models"):
         self.landmarkDetector68 = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False)
         self.image_size = image_size
         self.model_dir = model_dir
-        self.landmark_model_name = 'shape_predictor_68_face_landmarks.dat'
-        self.mmod_model_name = 'mmod_human_face_detector.dat'
+        self.landmark_model_name = "shape_predictor_68_face_landmarks.dat"
+        self.mmod_model_name = "mmod_human_face_detector.dat"
 
     def get_landmarks_68(self, image):
         landmark = self.landmarkDetector68.get_landmarks(image)
@@ -35,8 +36,7 @@ class FaceCropper(object):
 
         return landmark
 
-    def faceDetector(self, image, use_mmod = False):
-
+    def faceDetector(self, image, use_mmod=False):
         self.use_mmod = use_mmod
 
         image = np.array(image)
@@ -46,12 +46,11 @@ class FaceCropper(object):
         else:
             self.face_detector = dlib.get_frontal_face_detector()
 
-
         bboxes = self.face_detector(image, 2)
 
         return bboxes
 
-    def detect_face_simple(self , image):
+    def detect_face_simple(self, image):
         image = np.array(image)
 
         lmk68 = self.get_landmarks_68(np.array(image))
@@ -75,12 +74,11 @@ class FaceCropper(object):
 
         src_pts = np.array([tl, bl, tr, br])
 
-        cropped_image = image[start_y: end_y, start_x: end_x]
+        cropped_image = image[start_y:end_y, start_x:end_x]
 
         return cropped_image, [start_y, end_y, start_x, end_x], lmk68
 
-    def detect_face_multiple(self,image, bbox):
-
+    def detect_face_multiple(self, image, bbox):
         left = bbox.left()
         right = bbox.right()
         bottom = bbox.bottom()
@@ -100,22 +98,16 @@ class FaceCropper(object):
 
         src_pts = np.array([tl, bl, tr, br])
 
-        cropped_image = np.array(image)[start_y: end_y, start_x: end_x]
+        cropped_image = np.array(image)[start_y:end_y, start_x:end_x]
 
-        return cropped_image , [start_y, end_y, start_x, end_x]
+        return cropped_image, [start_y, end_y, start_x, end_x]
 
-    def refineCrop(self , image , bbox_course):
-        crop_refine, bbox_refine = segment.returnfacebbox(np.array(image), msk_type='full',
-                                                                          getbbox=True, margin=0.1)
-        final_bbox = [bbox_course[0] + bbox_refine[0],
-                      bbox_course[0] + bbox_refine[1],
-                      bbox_course[2] + bbox_refine[2],
-                      bbox_course[2] + bbox_refine[3],
-                      ]
+    def refineCrop(self, image, bbox_course):
+        crop_refine, bbox_refine = segment.returnfacebbox(np.array(image), msk_type="full", getbbox=True, margin=0.1)
+        final_bbox = [
+            bbox_course[0] + bbox_refine[0],
+            bbox_course[0] + bbox_refine[1],
+            bbox_course[2] + bbox_refine[2],
+            bbox_course[2] + bbox_refine[3],
+        ]
         return crop_refine, final_bbox
-
-
-
-
-
-
